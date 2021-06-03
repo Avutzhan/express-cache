@@ -1,15 +1,23 @@
-const express = require('express')
-const cors = require('cors')
-const path = require('path')
+let os = require('os');
+let http = require('http');
 
-const app = express()
-app.use(cors())
-app.use('/static', express.static(path.join(__dirname, 'public'), {'maxage': '2h'}))
+let server = http.createServer((req, res) => {
+    if (req.url === '/favicon.ico') {
+        res.writeHead(200, {'Content-Type': 'image/x-icon'});
+        res.end();
+        console.log('favicon requested');
+        return;
+    }
 
-app.get('/hi', (req, res) => {
-    res.header('Cache-Control', 'public, max-age=86400')
-    res.header('Content-Type', 'text/html')
-    res.send(new Buffer.alloc('<h2>Test</h2>'));
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    console.log('i have been hit');
+    res.end(JSON.stringify({
+        message: req.connection.remoteAddress,
+        net: os.networkInterfaces()
+    }));
+
 });
 
-app.listen(3000, () => console.log('Example app is listening on port 3000.'));
+server.listen(3000);
+
+console.log("Server running in 3000 port");
